@@ -1,8 +1,12 @@
 package org.fastcampus.student_management;
 
 import org.fastcampus.student_management.application.course.CourseService;
+import org.fastcampus.student_management.application.course.dto.CourseInfoDto;
+import org.fastcampus.student_management.application.course.interfaces.CourseVCommandRepository;
 import org.fastcampus.student_management.application.student.StudentService;
-import org.fastcampus.student_management.repo.CourseRepository;
+import org.fastcampus.student_management.application.student.dto.StudentInfoDto;
+import org.fastcampus.student_management.repo.CourseJdbcRepository;
+import org.fastcampus.student_management.repo.CourseRepositoryImpl;
 import org.fastcampus.student_management.repo.StudentRepository;
 import org.fastcampus.student_management.ui.course.CourseController;
 import org.fastcampus.student_management.ui.course.CoursePresenter;
@@ -14,16 +18,28 @@ public class Main {
 
   public static void main(String[] args) {
     StudentRepository studentRepository = new StudentRepository();
-    CourseRepository courseRepository = new CourseRepository();
+    CourseRepositoryImpl courseRepository = new CourseRepositoryImpl();
+    CourseJdbcRepository jdbcRepository = new CourseJdbcRepository();
 
     StudentService studentService = new StudentService(studentRepository);
-    CourseService courseService = new CourseService(courseRepository, studentService);
+    CourseService courseService = new CourseService(courseRepository,jdbcRepository,studentService);
 
     CoursePresenter coursePresenter = new CoursePresenter();
     StudentPresenter studentPresenter = new StudentPresenter();
 
     CourseController courseController = new CourseController(coursePresenter, courseService, studentPresenter);
     StudentController studentController = new StudentController(studentPresenter, studentService);
+
+    //기본 default 세팅 추가
+    StudentInfoDto studentInfoDto = new StudentInfoDto("홍길동", 20, "서울시 강남구");
+    StudentInfoDto studentInfoDto1 = new StudentInfoDto("존도", 21, "서울시 노원구");
+    studentService.saveStudent(studentInfoDto);
+    studentService.saveStudent(studentInfoDto1);
+
+    CourseInfoDto courseInfoDto = new CourseInfoDto("바이올린", 1000, "MONDAY", "홍길동", 1717299008L);
+    CourseInfoDto courseInfoDto1 = new CourseInfoDto("첼로", 1200, "MONDAY", "존도", 1717299008L);
+    courseService.registerCourse(courseInfoDto);
+    courseService.registerCourse(courseInfoDto1);
 
     studentPresenter.showMenu();
     UserInputType userInputType = studentController.getUserInput();
